@@ -27,7 +27,7 @@
     </div>
     @endif
 
-    @isset($stats)
+    @isset($res)
     <hr>
     <table>
         <thead>
@@ -38,31 +38,31 @@
         <tbody>
             <tr>
                 <td>Number of pages crawled</td>
-                <td>{{ $stats->pageCount }}</td>
+                <td>{{ $res->getPageCount() }}</td>
             </tr>
             <tr>
                 <td>Number of a unique images</td>
-                <td>{{ $stats->imageNumber }}</td>
+                <td>{{ $res->getImageCount() }}</td>
             </tr>
             <tr>
                 <td>Number of unique internal links</td>
-                <td>{{ $stats->internalLinkNumber }}</td>
+                <td>{{ $res->getInternalLinksCount() }}</td>
             </tr>
             <tr>
                 <td>Number of unique external links</td>
-                <td>{{ $stats->externalLinkNumber }}</td>
+                <td>{{ $res->getExternalLinksCount() }}</td>
             </tr>
             <tr>
                 <td>Average page load in seconds</td>
-                <td>{{ $stats->averageLoadTime }} sec</td>
+                <td>{{ $res->getAverageLoadTime() }} sec</td>
             </tr>
             <tr>
                 <td>Average word count</td>
-                <td>{{ $stats->averageWordNumber }}</td>
+                <td>{{ $res->getAverageWordCount() }}</td>
             </tr>
             <tr>
                 <td>Average title length</td>
-                <td>{{ $stats->averageTitleLength }}</td>
+                <td>{{ $res->getAverageTitleLength() }}</td>
             </tr>
         </tbody>
     </table>
@@ -78,7 +78,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($stats->pages as $page)
+            @foreach ($res->pages as $page)
             <tr>
                 <td>{{ $page->URL }}</td>
                 <td>{{ $page->status }}</td>
@@ -88,7 +88,7 @@
     </table>
     <hr>
     <h3>Pages scrapped data</h3>
-    {{ dd($stats->pages) }}
+    {{ dd($res->pages) }}
     @endisset
 
 </body>

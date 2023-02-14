@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Services\Crawler\CrawlerController;
+use App\Http\Controllers\CrawlerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +16,3 @@ use App\Services\Crawler\CrawlerController;
 
 Route::get('/', [CrawlerController::class, 'index']);
 Route::post('/', [CrawlerController::class, 'process']);
-

@@ -2,6 +2,8 @@
 
 namespace App\Services\Crawler;
 
+use App\Services\Crawler\Interfaces\CrawlerInterface;
+use App\Services\Crawler\Interfaces\ResultInterface;
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Contains logic of crawling web site pages
  */
-class Crawler
+class Crawler implements CrawlerInterface
 {
     /**
      * Array of SitePage objects
@@ -17,38 +19,53 @@ class Crawler
     public array $pages = [];
 
     /**
-     * Array of site links
+     * Array of links
      */
     protected array $links = [];
-
-    /**
-     * Number of web pages to crawl
-     */
-    protected int $crawlCount = 6;
 
     /**
      * Count successfully crawled links
      */
     protected int $count = 0;
 
-    public function __construct(protected string $siteURL)
+    public function __construct(protected int $crawlCount = 1)
     {
-        $this->links[] = $this->siteURL;
     }
 
     /**
-     * All crawling logic is in this method.
+     * Start crawl process for provided $siteURL. Return false
+     * if can't reach web site
      * 
      * @return bool
      */
-    public function process(): bool
+    public function process(string $siteURL): bool
+    {
+        $this->links[] = $siteURL;
+
+        if ($this->processPage() === false) {
+            return false;
+        }
+
+        while ($this->count < $this->crawlCount && count($this->links) > 0) {
+            $this->processPage();
+        }
+
+        return true;
+    }
+
+    /**
+     * Get and parse one web site page
+     * 
+     * @return bool
+     */
+    public function processPage(): bool
     {
         $link = array_shift($this->links);
 
         try {
             $response = Http::get($link);
         } catch (TransferException $e) {
-            Log::warning($e->getMessage());
+            Log::warning($e->getMessage(), ['URL' => $link]);
             return false;
         }
 
@@ -63,10 +80,6 @@ class Crawler
 
         $this->pages[] = $sitePage;
 
-        if ($this->count < $this->crawlCount && count($this->links) > 0) {
-            $this->process();
-        }
-
         return true;
     }
 
@@ -78,5 +91,15 @@ class Crawler
     public function getCount(): int
     {
         return $this->count;
+    }
+
+    /**
+     * Return results of a crawling 
+     * 
+     * @return ResultInterface
+     */
+    public function getResult(): ResultInterface
+    {
+        return new Result($this->pages, $this->getCount());
     }
 }

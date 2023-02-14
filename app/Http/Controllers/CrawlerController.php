@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Services\Crawler;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\Crawler\Interfaces\CrawlerInterface;
+use App\Services\Crawler\Stats;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CrawlerController extends Controller
 {
+    public function __construct(protected CrawlerInterface $crawler)
+    {
+    }
+
     /**
      * Show Crawler page
      * 
@@ -28,14 +34,14 @@ class CrawlerController extends Controller
     public function process(Request $request): View
     {
         $validatedData = $request->validate(['site_url' => 'required|url']);
-        $crawler = new Crawler($validatedData['site_url']);
-        
-        if ($crawler->process() === false) {
-            throw ValidationException::withMessages(['site_url' => 'Crawl was unsuccessful on this URL']);
+
+        if ($this->crawler->process($validatedData['site_url']) === false) {
+            throw ValidationException::withMessages([
+                'site_url' => 'Crawl was unsuccessful on this URL'
+            ]);
         }
 
-        $stats = new Stats($crawler->pages, $crawler->getCount());
 
-        return view('crawler', ['stats' => $stats]);
+        return view('crawler', ['res' => $this->crawler->getResult()]);
     }
 }

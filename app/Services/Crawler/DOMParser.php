@@ -49,7 +49,7 @@ class DOMParser extends AbstractParser
         array_walk($paths, function (&$path, $key) {
             $url = parse_url($this->page->URL);
             $scheme = ($url['scheme'] ?? "https") . "://";
-            $port = ":" . ($url['port'] ?? "");
+            $port = empty($url['port']) ? "" : ":" . $url['port'];
             $path = "{$scheme}{$this->host}{$port}{$path}";
         });
 
