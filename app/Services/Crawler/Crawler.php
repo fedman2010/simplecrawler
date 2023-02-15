@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Crawler;
 
 use App\Services\Crawler\Interfaces\CrawlerInterface;
+use App\Services\Crawler\Interfaces\ParserInterface;
 use App\Services\Crawler\Interfaces\ResultInterface;
-use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Contains logic of crawling web site pages
@@ -15,11 +18,15 @@ class Crawler implements CrawlerInterface
 {
     /**
      * Array of SitePage objects
+     * 
+     * @var array<SitePage>
      */
-    public array $pages = [];
+    protected array $pages = [];
 
     /**
      * Array of links
+     * 
+     * @var array<string>
      */
     protected array $links = [];
 
@@ -28,14 +35,17 @@ class Crawler implements CrawlerInterface
      */
     protected int $count = 0;
 
-    public function __construct(protected int $crawlCount = 1)
-    {
+    public function __construct(
+        protected int $crawlCount = 1,
+        protected ParserInterface $parser
+    ) {
     }
 
     /**
      * Start crawl process for provided $siteURL. Return false
      * if can't reach web site
      * 
+     * @param string $siteURL
      * @return bool
      */
     public function process(string $siteURL): bool
@@ -54,7 +64,7 @@ class Crawler implements CrawlerInterface
     }
 
     /**
-     * Get and parse one web site page
+     * Get and parse one web site page at a time
      * 
      * @return bool
      */
@@ -64,7 +74,7 @@ class Crawler implements CrawlerInterface
 
         try {
             $response = Http::get($link);
-        } catch (TransferException $e) {
+        } catch (Throwable $e) {
             Log::warning($e->getMessage(), ['URL' => $link]);
             return false;
         }
@@ -73,8 +83,7 @@ class Crawler implements CrawlerInterface
         $sitePage = new SitePage($response, $link);
 
         if ($response->ok()) {
-            $parser = new DOMParser($sitePage);
-            $parser->process();
+            $this->parser->process($sitePage);
             $this->links = array_unique(array_merge($this->links, $sitePage->internalLinks));
         }
 
@@ -84,22 +93,12 @@ class Crawler implements CrawlerInterface
     }
 
     /**
-     * Return number of crawled pages
-     * 
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return $this->count;
-    }
-
-    /**
      * Return results of a crawling 
      * 
      * @return ResultInterface
      */
     public function getResult(): ResultInterface
     {
-        return new Result($this->pages, $this->getCount());
+        return new Result($this->pages, $this->count);
     }
 }

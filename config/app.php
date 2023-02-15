@@ -194,7 +194,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Services\Crawler\CrawlerServiceProvider::class,
+        App\Services\Crawler\Providers\CrawlerServiceProvider::class,
 
     ],
 

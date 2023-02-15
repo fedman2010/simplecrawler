@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Crawler;
 
 use App\Services\Crawler\Interfaces\ResultInterface;
@@ -16,7 +18,7 @@ class Result implements ResultInterface
     protected int $averageWordNumber = 0;
     protected float $averageLoadTime = 0;
 
-    public function __construct(public array $pages, protected int $pageCount)
+    public function __construct(protected array $pages, protected int $pageCount)
     {
         foreach ($pages as $page) {
             $this->imageNumber += count($page->images);
@@ -64,5 +66,13 @@ class Result implements ResultInterface
     public function getPageCount(): int
     {
         return $this->pageCount;
+    }
+
+    /**
+     * @return array<SitePage>
+     */
+    public function getPages(): array
+    {
+        return $this->pages;
     }
 }

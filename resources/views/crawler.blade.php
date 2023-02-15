@@ -78,7 +78,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($res->pages as $page)
+            @foreach ($res->getPages() as $page)
             <tr>
                 <td>{{ $page->URL }}</td>
                 <td>{{ $page->status }}</td>
@@ -88,7 +88,7 @@
     </table>
     <hr>
     <h3>Pages scrapped data</h3>
-    {{ dd($res->pages) }}
+    {{ dd($res->getPages()) }}
     @endisset
 
 </body>
