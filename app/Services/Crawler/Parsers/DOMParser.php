@@ -115,7 +115,7 @@ class DOMParser implements ParserInterface
         $nodeList = $this->dom->getElementsByTagName('title');
 
         if ($nodeList->count() == 0) {
-            return 0;
+            return "";
         }
 
         $title = $nodeList->item(0)?->textContent;
