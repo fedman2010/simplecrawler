@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Crawler\Interfaces;
 
+use App\Services\Crawler\ParsedPage;
 use App\Services\Crawler\SitePage;
 
 /**
@@ -11,5 +12,6 @@ use App\Services\Crawler\SitePage;
  */
 interface ParserInterface
 {
-    public function process(SitePage $page): void;
+    public function init(SitePage $page, string $host): void;
+    public function process(): ParsedPage;
 }

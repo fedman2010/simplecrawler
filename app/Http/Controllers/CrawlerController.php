@@ -40,7 +40,6 @@ class CrawlerController extends Controller
             ]);
         }
 
-
         return view('crawler', ['res' => $this->crawler->getResult()]);
     }
 }

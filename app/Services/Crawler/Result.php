@@ -69,7 +69,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @return array<SitePage>
+     * @return array<ParsedPage>
      */
     public function getPages(): array
     {

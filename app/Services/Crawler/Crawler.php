@@ -17,23 +17,28 @@ use Throwable;
 class Crawler implements CrawlerInterface
 {
     /**
-     * Array of SitePage objects
-     * 
-     * @var array<SitePage>
+     * @var array<ParsedPage>
      */
     protected array $pages = [];
 
     /**
-     * Array of links
-     * 
      * @var array<string>
      */
     protected array $links = [];
 
     /**
      * Count successfully crawled links
+     * 
+     * @var int
      */
     protected int $count = 0;
+
+    /**
+     * Domain name of a web site to crawl
+     * 
+     * @var string|null
+     */
+    protected ?string $host;
 
     public function __construct(
         protected int $crawlCount = 1,
@@ -42,8 +47,8 @@ class Crawler implements CrawlerInterface
     }
 
     /**
-     * Start crawl process for provided $siteURL. Return false
-     * if can't reach web site
+     * Start crawl process for provided $siteURL.
+     * Return false if can't reach web site.
      * 
      * @param string $siteURL
      * @return bool
@@ -51,8 +56,9 @@ class Crawler implements CrawlerInterface
     public function process(string $siteURL): bool
     {
         $this->links[] = $siteURL;
+        $this->host = parse_url($siteURL, PHP_URL_HOST);
 
-        if ($this->processPage() === false) {
+        if (!$this->host || !$this->processPage()) {
             return false;
         }
 
@@ -83,11 +89,12 @@ class Crawler implements CrawlerInterface
         $sitePage = new SitePage($response, $link);
 
         if ($response->ok()) {
-            $this->parser->process($sitePage);
-            $this->links = array_unique(array_merge($this->links, $sitePage->internalLinks));
+            $this->parser->init($sitePage, $this->host);
+            $parsedPage = $this->parser->process();
+            $this->links = array_unique(array_merge($this->links, $parsedPage->internalLinks));
         }
 
-        $this->pages[] = $sitePage;
+        $this->pages[] = $parsedPage;
 
         return true;
     }
